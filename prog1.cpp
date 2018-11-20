@@ -9,7 +9,7 @@ int main()
 {
 	char c1[256];
 	const char DELIMITADOR[] = " \t";
-	const int MAX_ELEMENTOS = 20;
+	const int MAX_ELEMENTOS = 21;
 	char *trozos[MAX_ELEMENTOS + 1];
 
 	cout << "Introduce una cadena de caracteres" << endl;
