@@ -14,6 +14,7 @@ int main()
 
 	cout << "Introduce una cadena de caracteres" << endl;
 	cin.getline(c1, 256);
+	cin.ignore();
 	cin.clear();
 
 	trocear_linea(c1, DELIMITADOR, MAX_ELEMENTOS, trozos);
