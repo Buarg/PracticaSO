@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 
 	switch(argc)
 	{
-		case 1: while(strcmp(c1, "salir") != 0) {	
+		case 1: 
+			while(strcmp(c1, "salir") != 0) {	
 				cout << "Introduce una cadena: " << endl;
 				cin.getline(c1, 256);
 				cin.clear();
@@ -29,7 +30,9 @@ int main(int argc, char *argv[])
 			}
 			break;
 
-		case 2: ifstream e;
+		case 2: 
+		{
+			ifstream e;
 			e.open(argv[1]);
 			if(e.fail()) {
 				cerr << "ERROR: No se puede abrir el archivo" << argv[1] << endl;
@@ -39,16 +42,21 @@ int main(int argc, char *argv[])
 				e.getline(c1, 255, '\n');
 				while(! e.eof()) {
 					trocear_linea(c1, DELIMITADOR, MAX_ELEMENTOS, trozos);
+					
+					for(int i = 0; trozos[i] != NULL; i++) {
+						cout << trozos [i] << endl;
+					}
 					e.getline(c1, 255, '\n');
 				}
 				e.close();
 			}
 			break;
-
-		default: cerr << "ERROR: Demasiados argumentos." << endl;
-			 break;
+		}
+		default:
+		 	cerr << "ERROR: Demasiados argumentos." << endl;
+			exit(3);
+			break;
 	}
-
 	exit(0);
 }
 
