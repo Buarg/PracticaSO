@@ -107,8 +107,9 @@ void redir(char* lista_arg[])
 {
 	int fd;
 	bool contiene = false;
+	int i = 0;
 
-	for(int i = 0; i < MAX_ELEMENTOS; i++) {
+	while(lista_arg[i + 1] != NULL) {
 		if(strcmp(lista_arg[i], "<") == 0) {
 			close(0);
 			fd = open(lista_arg[i + 1], O_RDONLY);
@@ -118,12 +119,13 @@ void redir(char* lista_arg[])
 			}
 			lista_arg[i] = NULL;
 			contiene = true;
+			ejecutar(lista_arg);
 		}
 		else {
-			if(strcmp(lista_arg[i + 1], ">") == 0) {
+			if(strcmp(lista_arg[i], ">") == 0) {
 				close(1);
-				fd = creat(lista_arg[i], 0644);
-				if(fd != 0) {
+				fd = creat(lista_arg[i + 1], 0644);
+				if(fd != 1) {
 					cerr << "No puedo crear el archivo con el descriptor 1\n";
 					exit(-1);
 				}
@@ -132,6 +134,7 @@ void redir(char* lista_arg[])
 				ejecutar(lista_arg);
 			}
 		}
+		i++;
 	}
 	if(contiene == false) {
 		ejecutar(lista_arg);
