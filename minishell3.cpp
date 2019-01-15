@@ -142,7 +142,6 @@ void tub(char* lista_arg[])
 	int j = 0;
 	int k = 0;
 	char* lista_arg2[MAX_ELEMENTOS + 1];
-	int valor = fork();
 
 	while(lista_arg[i + 1] != NULL) {
 		if(strcmp(lista_arg[i], "|") == 0) {
@@ -160,35 +159,37 @@ void tub(char* lista_arg[])
 				perror("ERROR: no he podido crear la tuberia");
 				exit(-1);
 			}
-			switch(valor) {
-				case -1:
-					perror("ERROR: error al ejecutar fork");
-					exit(-1);
-				case 0:
-					close(tuberia[0]);
-					if(dup2(tuberia[1], 1) == -1) {
-						perror("ERROR: no se puede redireccionar stdout");
-						exit(-1);
-					}
-					if(execvp(lista_arg[0], lista_arg) == -1) {
-                        perror("ERROR: error al ejecutar el primer mandato");
-                        exit(-1);
-                    }
-                    break;
-				default:
-					close(tuberia[1]);
-					if(dup2(tuberia[0], 0) == -1) {
-						perror("ERROR: no se puede redireccionar stdin");
-						exit(-1);
-					}
-					if(execvp(lista_arg2[0], lista_arg2) == -1) {
-                        perror("ERROR: error al ejecutar el segundo mandato");
-                        exit(-1);
-                    }
-                    break;
-			}
 		}
 		i++;
+	}
+	int valor = fork();
+	if(contiene == true) {
+        switch(valor) {
+            case -1:
+                perror("ERROR: error al ejecutar fork");
+                exit(-1);
+            case 0:
+                close(tuberia[0]);
+                if(dup2(tuberia[1], 1) == -1) {
+                    perror("ERROR: no se puede redireccionar stdout");
+                    exit(-1);
+                }
+                if(execvp(lista_arg[0], lista_arg) == -1) {
+                    perror("ERROR: error al ejecutar el primer mandato");
+                    exit(-1);
+                }
+            default:
+                close(tuberia[1]);
+                if(dup2(tuberia[0], 0) == -1) {
+                    perror("ERROR: no se puede redireccionar stdin");
+                    exit(-1);
+                }
+                wait(NULL);
+                if(execvp(lista_arg2[0], lista_arg2) == -1) {
+                    perror("ERROR: error al ejecutar el segundo mandato");
+                    exit(-1);
+                }
+        }
 	}
 	if(contiene == false && valor == 0) {
 		execvp(lista_arg[0], lista_arg);
