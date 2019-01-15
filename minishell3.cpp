@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
 		default:
 			cerr << "Numero de argumrntos incorrecto" << endl;
-			exit(1);			
+			exit(1);
 	}
 	exit(0);
 }
@@ -91,28 +91,27 @@ void ejecutar(char* lista_arg[])
 	if(strcmp(lista_arg[0], "cd") == 0) {
 		chdir(lista_arg[1]);
 	}
-	else { 
-		tub(lista_arg); 
+	else {
+		tub(lista_arg);
 	}
 }
 
 void redir(char* lista_arg[])
 {
 	int fd;
-	bool contiene = false;
+	int stdin_copy = dup(0);
+	int stdout_copy = dup(1);
 	int i = 0;
 
 	while(lista_arg[i + 1] != NULL) {
 		if(strcmp(lista_arg[i], "<") == 0) {
 			close(0);
 			fd = open(lista_arg[i + 1], O_RDONLY);
-			if (fd != 0) { 
+			if (fd != 0) {
 				cerr << "ERROR: No puedo abrir el archivo con el descriptor 0\n";
 				exit(-1);
 			}
 			lista_arg[i] = NULL;
-			contiene = true;
-			ejecutar(lista_arg);
 		}
 		else {
 			if(strcmp(lista_arg[i], ">") == 0) {
@@ -123,15 +122,16 @@ void redir(char* lista_arg[])
 					exit(-1);
 				}
 				lista_arg[i] = NULL;
-				contiene = true;
-				ejecutar(lista_arg);
 			}
 		}
 		i++;
 	}
-	if(contiene == false) {
-		ejecutar(lista_arg);
-	}
+	ejecutar(lista_arg);
+	close(fd);
+	dup2(stdin_copy, 0);
+	dup2(stdout_copy, 1);
+	close(stdin_copy);
+	close(stdout_copy);
 }
 
 void tub(char* lista_arg[])
@@ -170,22 +170,22 @@ void tub(char* lista_arg[])
 						perror("ERROR: no se puede redireccionar stdout");
 						exit(-1);
 					}
-					close(tuberia[1]);
-					execvp(lista_arg[0], lista_arg);
-					perror("ERROR: error al ejecutar el primer mandato");
-					exit(-1);
-					break;
+					if(execvp(lista_arg[0], lista_arg) == -1) {
+                        perror("ERROR: error al ejecutar el primer mandato");
+                        exit(-1);
+                    }
+                    break;
 				default:
 					close(tuberia[1]);
 					if(dup2(tuberia[0], 0) == -1) {
 						perror("ERROR: no se puede redireccionar stdin");
 						exit(-1);
 					}
-					close(tuberia[0]);
-					execvp(lista_arg2[0], lista_arg2);
-					perror("ERROR: error al ejecutar el segundo mandato");
-					exit(-1);
-					break;
+					if(execvp(lista_arg2[0], lista_arg2) == -1) {
+                        perror("ERROR: error al ejecutar el segundo mandato");
+                        exit(-1);
+                    }
+                    break;
 			}
 		}
 		i++;
@@ -193,5 +193,5 @@ void tub(char* lista_arg[])
 	if(contiene == false && valor == 0) {
 		execvp(lista_arg[0], lista_arg);
 	}
-	wait(NULL);
+    wait(NULL);
 }
